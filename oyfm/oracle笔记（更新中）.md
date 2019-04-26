@@ -1,4 +1,5 @@
-#要点
+**要点**
+##第一天：
 1.oracle严格区分字符串大小写，mysql不区分
 2.关于null:
 	1.包含null的表达都为空，空值永远不等于空值：
@@ -65,9 +66,39 @@
    connect by prior empno=mgr
    start with mgr is null
     order by 1;
+##第二天：  
+1.
 
-#sql优化：
+**sql优化：**
 1.在sql语句中做查询语句的时候尽量避免使用*，多使用列名
 2.where解析的顺序，从右往左 
 3.尽量使用where
+4.尽量使用多表查询，少使用子查询
+5.尽量不要使用集合运算
+
+
+**问题解决**
+一：解决默认字符集以及默认地区问题（实测）
+#字符集更改
+SHUTDOWN IMMEDIATE; --先关掉数据库
+STARTUP MOUNT EXCLUSIVE; 
+ALTER SYSTEM ENABLE RESTRICTED SESSION;
+ALTER SYSTEM SET JOB_QUEUE_PROCESSES=0;
+ALTER SYSTEM SET AQ_TM_PROCESSES=0;
+ALTER DATABASE OPEN;
+ALTER DATABASE NATIONAL CHARACTER SET AL32UTF8; --此处修改字符集关键语句
+SHUTDOWN immediate; --修改完毕后重启数据库
+STARTUP;
+#地区更改
+1.通过alter system set nls_language='AMERICAN' scope=spfile; 可以更改nls_database_parameters和nls_instance_parameters的nls_language
+2.通过alter session set nls_language='SIMPLIFIED CHINESE'; 可以更改nls_session_parameters的nls_language
+#系统环境变量的更改
+在系统环境中加入两个变量
+LANG=zh_CN.GBK
+NLS_LANG=SIMPLIFIED CHINESE_CHINA.ZHS16GBK
+
+
+
 		
+
+
