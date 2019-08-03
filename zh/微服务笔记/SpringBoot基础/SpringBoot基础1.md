@@ -1105,6 +1105,46 @@ spring.jpa.hibernate.ddl-auto=update
 spring.jpa.hibernate.naming_strategy=org.hibernate.cfg.ImprovedNamingStrategy
 ```
 
+```yml
+#server:
+  #port: 8088
+  #servlet:
+    #context-path: /logweb
+spring:
+  #mvc:
+    #view:
+     # prefix: /WEB-INF/
+      #suffix: .jsp
+  application:
+    name: log-web
+  datasource:
+    druid:
+      url: jdbc:mysql://localhost:3306/logparse?characterEncoding=utf-8
+      username: root
+      password: root
+      driverClassName: com.mysql.jdbc.Driver
+      initialSize: 5  #初始建立连接数量
+      minIdle: 5  #最小连接数量
+      maxActive: 20 #最大连接数量
+      maxWait: 10000  #获取连接最大等待时间，毫秒
+      testOnBorrow: true #申请连接时检测连接是否有效
+      testOnReturn: false #归还连接时检测连接是否有效
+      timeBetweenEvictionRunsMillis: 60000 #配置间隔检测连接是否有效的时间（单位是毫秒）
+      minEvictableIdleTimeMillis: 300000  #连接在连接池的最小生存时间（毫秒）
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect  #不加这句则默认为myisam引擎
+    hibernate:
+     # ddl-auto: update     #create      : 程序运行时创建数据库表（如果有表，先删除表再创建）
+                            #update      ：程序运行时创建表（如果有表，不会创建表）
+                            #none        ：不会创建表
+      # 默认驼峰转下划线 org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+      naming:       #取消驼峰转下划线
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: true
+```
+
+
+
 ### 5.3.4 创建实体配置实体
 
 ```java

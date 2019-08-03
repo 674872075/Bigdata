@@ -1904,6 +1904,7 @@ public class LinkMan {
      */
     @ManyToOne(targetEntity = Customer.class,fetch = FetchType.LAZY)
     @JoinColumn(name = "lkm_cust_id",referencedColumnName = "cust_id")
+    private Customer customer;
     }
 ```
 
