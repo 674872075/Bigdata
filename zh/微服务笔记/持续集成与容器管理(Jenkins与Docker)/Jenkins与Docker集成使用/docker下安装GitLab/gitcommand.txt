@@ -1,0 +1,40 @@
+
+==提交代码==
+#将目录下的所有文件（包括子目录）添加到暂存区
+git add .
+#提交代码到本地仓库
+git commit -m "commit description"
+#将本地仓库master主分支代码推送到远程仓库
+git push -u origin master
+
+查询当前分支
+git branch
+切换分支
+git checkout 分支名称
+合并分支
+切换到主分支再合并
+git merge 分支名称
+
+==更改远程仓库地址==
+创建一个新目录
+cd 新目录 
+$ git init 初始化仓库
+$ git remote -v 此时本地仓库没有关联的远程仓库
+$ git remote add origin http://192.168.101.64/root/test001.git 指定远程仓库
+$ git remote -v 发现本地仓库已经关联的远程仓库
+origin  http://192.168.101.64/root/test001.git (fetch)
+origin  http://192.168.101.64/root/test001.git (push)
+$ git pull --rebase origin master  从远程仓库拉取代码并和本地代码合并
+
+更改remote地址：先将原来的远程仓库链接删除git remote remove origin
+再添加远程仓库：git remote add origin 。。。。
+
+以这种方式最终向远程仓库push：git push，报如下错误
+$ git push
+fatal: The current branch master has no upstream branch.
+To push the current branch and set the remote as upstream, use
+
+    git push --set-upstream origin master
+
+需要在第一次执行命令时添加--set-upstream将本地分支与远程分支绑定：git push --set-upstream origin master
+后边再执行push直接输入：git push
