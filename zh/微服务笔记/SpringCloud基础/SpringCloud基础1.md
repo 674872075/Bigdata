@@ -1749,7 +1749,7 @@ Eureka的服务治理强调了CAP原则中的AP，即可用性和可靠性。它
 
 但是此时，8081服务其实是正常的。
 
-因此Spring Cloud 整合了Spring Retry 来增强RestTemplate的重试能力，当一次服务调用失败后，不会立即抛出一次，而是再次重试另一个服务。
+因此Spring Cloud 整合了Spring Retry 来增强RestTemplate的重试能力，当一次服务调用失败后，不会立即抛出异常，而是再次重试另一个服务。
 
 只需要简单配置即可实现Ribbon的重试：
 

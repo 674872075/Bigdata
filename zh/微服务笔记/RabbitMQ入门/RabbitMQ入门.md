@@ -784,7 +784,7 @@ AMQP.BasicProperties properties, byte[] body) throws IOException {
 
 ### Topics
 
-路由模式：
+主题模式：
 1、每个消费者监听自己的队列，并且设置带统配符的routingkey。
 2、生产者将消息发给broker，由交换机根据routingkey来转发消息到指定的队列。
 

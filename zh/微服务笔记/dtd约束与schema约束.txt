@@ -1,0 +1,216 @@
+xml中的注释（*****）
+	* 写法 <!-- xml的注释 -->
+	** 注意的地方
+		**** 注释不能嵌套
+			<!--  <!-- -->  -->
+			<!-- <!-- <sex>nv</sex>--> -->
+	** 注释也不能放到第一行，第一行第一列必须放文档声明
+
+xml中的特殊字符（*****）
+	* 如果想要在xml中现在 a<b ,不能正常显示，因为把<当做标签
+	* 如果就想要显示，需要对特殊字符 < 进行转义
+	** <    &lt;
+	   >    &gt;
+ 
+CDATA区（了解）
+	* 可以解决多个字符都需要转义的操作 if(a<b && b<c && d>f) {}
+	* 把这些内容放到CDATA区里面，不需要转义了
+	** 写法
+		<![CDATA[ 内容  ]]>
+		- 代码
+		<![CDATA[ <b>if(a<b && b<c && d>f) {}</b> ]]>
+	** 把特殊字符，当做文本内容，而不是标签
+
+
+dtd的快速入门
+	* 创建一个文件 后缀名 .dtd
+
+	步骤：
+		（1）看xml中有多少个元素 ，有几个元素，在dtd文件中写几个 <!ELEMENT>
+		（2）判断元素是简单元素还是复杂元素
+			- 复杂元素：有子元素的元素
+				<!ELEMENT 元素名称 (子元素)>
+			- 简单元素：没有子元素
+				<!ELEMENT 元素名称 (#PCDATA)>
+		（3）需要在xml文件中引入dtd文件
+			<!DOCTYPE 根元素名称 SYSTEM "dtd文件的路径">
+	
+	** 打开xml文件使用浏览器打开的，浏览器只负责校验xml的语法，不负责校验约束
+
+	** 如果想要校验xml的约束，需要使用工具（myeclipse工具）
+
+	** 打开myeclipse开发工具
+		*** 创建一个项目 day05
+		*** 在day05的src目录下面创建一个xml文件和一个dtd文件
+		*** 当xml中引入dtd文件之后，比如只能出现name age，多写了一个a，会提示出错
+
+13、dtd的三种引入方式
+	（1）引入外部的dtd文件
+		<!DOCTYPE 根元素名称 SYSTEM "dtd路径">
+	（2）使用内部的dtd文件
+		- <!DOCTYPE 根元素名称 [
+			<!ELEMENT person (name,age)>
+			<!ELEMENT name (#PCDATA)>
+			<!ELEMENT age (#PCDATA)>
+		]>
+	（3）使用外部的dtd文件（网络上的dtd文件）
+		<!DOCTYPE 根元素 PUBLIC "DTD名称" "DTD文档的URL">
+		- 后面学到框架 struts2 使用配置文件 使用 外部的dtd文件
+		- <!DOCTYPE struts PUBLIC   "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"    
+		   "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+14、使用dtd定义元素
+	* 语法： <!ELEMENT 元素名 约束>
+
+	* 简单元素：没有子元素的元素
+		<!ELEMENT name (#PCDATA)>
+		*** (#PCDATA): 约束name是字符串类型
+		*** EMPTY : 元素为空（没有内容）
+			- <sex></sex>
+		*** ANY:任意
+	* 复杂元素：
+		<!ELEMENT person (name,age,sex,school)>
+			- 子元素只能出现一次
+		* <!ELEMENT 元素名称 (子元素)>
+
+		* 表示子元素出现的次数
+			+ : 表示一次或者多次
+			? ：表示零次或者一次
+			* ：表示零次或者多次
+		
+		* 子元素直接使用逗号进行隔开 ,
+			** 表示元素出现的顺序
+
+		* 子元素直接使用|隔开
+			** 表示元素只能出现其中的任意一个
+	
+15、使用dtd定义属性
+	* 语法： <!ATTLIST 元素名称
+			属性名称 属性类型 属性的约束
+		 >
+	
+	* 属性类型
+		- CDATA: 字符串
+			- 	<!ATTLIST birthday
+				ID1 CDATA #REQUIRED
+			>
+
+		- 枚举 ： 表示只能在一定的范围内出现值，但是只能每次出现其中的一个
+			** 红绿灯效果
+			** (aa|bb|cc)
+			- <!ATTLIST age
+				ID2 (AA|BB|CC)  #REQUIRED
+			>
+
+		- ID: 值只能是字母或者下划线开头
+			- <!ATTLIST name 
+				ID3 ID   #REQUIRED
+			>
+	
+	* 属性的约束
+		- #REQUIRED：属性必须存在
+
+		- #IMPLIED：属性可有可无
+
+		- #FIXED: 表示一个固定值 #FIXED "AAA"
+			- 属性的值必须是设置的这个固定值
+			- <!ATTLIST sex
+				ID4 CDATA #FIXED "ABC"
+			>
+		- 直接值
+			* 不写属性，使用直接值
+			* 写了属性，使用设置那个值
+			- <!ATTLIST school
+				ID5 CDATA "WWW"
+			>
+
+16、实体的定义
+	* 语法： <!ENTITY 实体名称 "实体的值">
+	*** <!ENTITY TEST "HAHAHEHE">
+	*** 使用实体 &实体名称;  比如 &TEST;
+
+	** 注意
+		* 定义实体需要写在内部dtd里面，
+		  如果写在外部的dtd里面，有某些浏览器下，内容得不到
+		  
+		  
+schema约束
+	dtd语法： <!ELEMENT 元素名称 约束>
+	** schema符合xml的语法，xml语句
+	** 一个xml中可以有多个schema，多个schema使用名称空间区分（类似于java包名）
+	** dtd里面有PCDATA类型，但是在schema里面可以支持更多的数据类型
+		*** 比如 年龄 只能是整数，在schema可以直接定义一个整数类型
+	*** schema语法更加复杂，schema目前不能替代dtd
+
+2、schema的快速入门
+	* 创建一个schema文件 后缀名是 .xsd
+		** 根节点 <schema>
+	** 在schema文件里面
+		** 属性  xmlns="http://www.w3.org/2001/XMLSchema"
+			- 表示当前xml文件是一个约束文件
+		** targetNamespace="http://www.itcast.cn/20151111"
+			- 使用schema约束文件，直接通过这个地址引入约束文件
+		** elementFormDefault="qualified"
+	步骤
+		（1）看xml中有多少个元素
+			<element>
+		（2）看简单元素和复杂元素
+			* 如果复杂元素
+				<complexType>
+					<sequence>
+						子元素
+					</sequence>
+			</complexType>
+		（3）简单元素，写在复杂元素的
+			<element name="person">
+			<complexType>
+			<sequence>
+					<element name="name" type="string"></element>
+					<element name="age" type="int"></element>
+			</sequence>
+			</complexType>
+			</element>
+
+		（4）在被约束文件里面引入约束文件
+			<person xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			xmlns="http://www.itcast.cn/20151111"
+			xsi:schemaLocation="http://www.itcast.cn/20151111 1.xsd">
+
+			** xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+				-- 表示xml是一个被约束文件
+			** xmlns="http://www.itcast.cn/20151111"
+				-- 是约束文档里面 targetNamespace
+			** xsi:schemaLocation="http://www.itcast.cn/20151111 1.xsd">
+				-- targetNamespace 空格  约束文档的地址路径
+		
+
+	* <sequence>：表示元素的出现的顺序
+	<all>: 元素只能出现一次
+	<choice>：元素只能出现其中的一个
+	maxOccurs="unbounded"： 表示元素的出现的次数
+	<any></any>:表示任意元素
+
+	* 可以约束属性
+		* 写在复杂元素里面
+		***写在　</complexType>之前
+		－－
+		<attribute name="id1" type="int" use="required"></attribute>
+			- name: 属性名称
+			- type：属性类型 int stirng
+			- use：属性是否必须出现 required
+
+	* 复杂的schema约束
+		<company xmlns = "http://www.example.org/company"
+	xmlns:dept="http://www.example.org/department"
+	xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.example.org/company company.xsd http://www.example.org/department department.xsd" 
+>
+	* 引入多个schema文件，可以给每个起一个别名
+
+	<employee age="30">
+		<!-- 部门名称 --> 
+		<dept:name>100</dept:name>
+		* 想要引入部门的约束文件里面的name，使用部门的别名 detp:元素名称
+		<!-- 员工名称 -->
+		<name>王晓晓</name>   
+	</employee>

@@ -78,7 +78,7 @@
 
 ​								通过词语找文档,这种索引的结构叫倒排索引结构
 
-## 2、查询案引
+## 2、查询索引
 
 ### 1)用户查询接口
 
@@ -548,6 +548,7 @@ public void testQueryParser() throws Exception {
     //第一个参数默认搜索的域
     //第二个参数就是分析器对象
     QueryParser queryParser = new QueryParser("content", new IKAnalyzer());
+    //可使用Lucene语法*:*(域名:搜索内容)
     Query query = queryParser.parse("Lucene是java开发的");
     //执行查询
     printResult(query, indexSearcher);
