@@ -22,9 +22,9 @@
 
 - 支持分片
 
-![](F:\BigDataNote\Bigdata\zh\面试集锦\Redis\assert\2019-08-23_09-57-35.png)
+![](assert\2019-08-23_09-57-35.png)
 
-![](F:\BigDataNote\Bigdata\zh\面试集锦\Redis\assert\2019-08-23_10-02-02.png)
+![](assert\2019-08-23_10-02-02.png)
 
 ## Redis数据类型
 
@@ -42,27 +42,27 @@
 
 ## 从海量key里查询出某一固定前缀的key
 
-![](F:\BigDataNote\Bigdata\zh\面试集锦\Redis\assert\2019-08-23_14-23-31.png)
+![](assert\2019-08-23_14-23-31.png)
 
 > keys pattern 命令在redis服务器数据量过大时会造成客户端卡死
 
-![](F:\BigDataNote\Bigdata\zh\面试集锦\Redis\assert\2019-08-23_14-31-00.png)
+![](assert\2019-08-23_14-31-00.png)
 
 ## 如何通过redis实现分布式锁
 
-![](F:\BigDataNote\Bigdata\zh\面试集锦\Redis\assert\2019-08-23_14-54-25.png)
+![](assert\2019-08-23_14-54-25.png)
 
-![](F:\BigDataNote\Bigdata\zh\面试集锦\Redis\assert\2019-08-23_14-57-16.png)
+![](assert\2019-08-23_14-57-16.png)
 
 ## 大量的key同时过期的注意项
 
-![](F:\BigDataNote\Bigdata\zh\面试集锦\Redis\assert\2019-08-23_14-56-31.png)
+![](assert\2019-08-23_14-56-31.png)
 
 ## 如何使用redis做异步队列
 
-![](F:\BigDataNote\Bigdata\zh\面试集锦\Redis\assert\2019-08-23_15-04-45.png)
+![](assert\2019-08-23_15-04-45.png)
 
-![](F:\BigDataNote\Bigdata\zh\面试集锦\Redis\assert\2019-08-23_15-06-13.png)
+![](assert\2019-08-23_15-06-13.png)
 
 **实例**
 
@@ -100,7 +100,7 @@ redis 127.0.0.1:6379> PUBLISH redisChat "Learn redis by runoob.com"
 
 > https://www.runoob.com/redis/redis-pub-sub.html  菜鸟教程 redis发布订阅
 
-![](F:\BigDataNote\Bigdata\zh\面试集锦\Redis\assert\2019-08-23_15-19-01.png)
+![](assert\2019-08-23_15-19-01.png)
 
 ## Redis如何做持久化
 
@@ -108,11 +108,11 @@ redis 127.0.0.1:6379> PUBLISH redisChat "Learn redis by runoob.com"
 
 RDB(快照)持久化 : 保存某个时间点的全量数据快照
 
-![](F:\BigDataNote\Bigdata\zh\面试集锦\Redis\assert\2019-08-23_15-30-57.png)
+![](assert\2019-08-23_15-30-57.png)
 
-![](F:\BigDataNote\Bigdata\zh\面试集锦\Redis\assert\2019-08-23_15-38-50.png)
+![](assert\2019-08-23_15-38-50.png)
 
-![](F:\BigDataNote\Bigdata\zh\面试集锦\Redis\assert\2019-08-23_15-43-15.png)
+![](assert\2019-08-23_15-43-15.png)
 
 ### 2、AOF持久化
 
@@ -122,23 +122,23 @@ RDB(快照)持久化 : 保存某个时间点的全量数据快照
 
 
 
-![](F:\BigDataNote\Bigdata\zh\面试集锦\Redis\assert\2019-08-23_15-54-05.png)
+![](assert\2019-08-23_15-54-05.png)
 
-![](F:\BigDataNote\Bigdata\zh\面试集锦\Redis\assert\2019-08-23_15-55-43.png)
+![](assert\2019-08-23_15-55-43.png)
 
 ## RDB和AOF的优缺点
 
-![](F:\BigDataNote\Bigdata\zh\面试集锦\Redis\assert\2019-08-23_15-57-14.png)
+![](assert\2019-08-23_15-57-14.png)
 
 ## Redis4.0默认方式
 
-![](F:\BigDataNote\Bigdata\zh\面试集锦\Redis\assert\2019-08-23_16-00-57.png)
+![](assert\2019-08-23_16-00-57.png)
 
-![](F:\BigDataNote\Bigdata\zh\面试集锦\Redis\assert\2019-08-23_16-01-46.png)
+![](assert\2019-08-23_16-01-46.png)
 
 ## Redis Pipeline机制
 
-![](F:\BigDataNote\Bigdata\zh\面试集锦\Redis\assert\2019-08-23_16-05-51.png)
+![](assert\2019-08-23_16-05-51.png)
 
  
 
@@ -146,15 +146,15 @@ RDB(快照)持久化 : 保存某个时间点的全量数据快照
 
 ### 主从同步机制
 
-![](F:\BigDataNote\Bigdata\zh\面试集锦\Redis\assert\2019-08-23_16-10-33.png)
+![](assert\2019-08-23_16-10-33.png)
 
-![](F:\BigDataNote\Bigdata\zh\面试集锦\Redis\assert\2019-08-23_16-12-15.png)
+![](assert\2019-08-23_16-12-15.png)
 
 ### 主从同步+哨兵
 
-![](F:\BigDataNote\Bigdata\zh\面试集锦\Redis\assert\2019-08-23_16-15-24.png)
+![](assert\2019-08-23_16-15-24.png)
 
-![](F:\BigDataNote\Bigdata\zh\面试集锦\Redis\assert\2019-08-23_16-42-07.png)
+![](assert\2019-08-23_16-42-07.png)
 
 ## Redis的集群原理
 
