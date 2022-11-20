@@ -109,7 +109,7 @@
 
 
 
-## notify和notifyall的区别
+## notify和notifyAll的区别
 
 **两个概念**
 
@@ -140,7 +140,31 @@
 
 > 让出cpu执行权（让出CPU后还会进行CPU的争夺），但是不会释放锁资源
 
+## Thread.holdsLock方法(判断是否获取到某个对象的锁)
 
+当且仅当当前线程持有指定对象上的监视器锁时才返回true 。
+
+```java
+Object o = new Object();
+@Test
+public void test1() throws Exception {
+    new Thread(new Runnable() {
+        @Override
+        public void run() {
+            synchronized(o) {
+                System.out.println("child thread: holdLock: " + 
+                    Thread.holdsLock(o));
+            }
+        }
+    }).start();
+    System.out.println("main thread: holdLock: " + Thread.holdsLock(o));
+    Thread.sleep(2000);
+}
+
+
+main thread: holdLock: false
+child thread: holdLock: true`
+```
 
 ## 如何中断线程
 
@@ -175,6 +199,7 @@
 
 1. 同步代码块( synchronized (this) , synchronized (类实例对象)) ,锁是小括号()中的实例对象。
 2. 同步非静态方法( synchronized method ) ,锁是当前对象的实例对象。
+3. 同步静态方法( synchronized static method ) ,锁是当前对象的类实例对象。
 
 
 
@@ -199,7 +224,7 @@
 
 > 在 Java 中，每个对象都会有一个 monitor 对象，监视器。
 >
-> 1)        某一线程占有这个对象的时候，先monitor 的计数器是不是0，如果是0还没有线程占有，这个时候线程占有这个对象，并且对这个对象的monitor+1；如果不为0，表示这个线程已经被其他线程占有，这个线程等待。当线程释放占有权的时候，monitor-1；
+> 1)        某一线程占有这个对象的时候，先判断monitor 的计数器是不是0，如果是0还没有线程占有，这个时候线程占有这个对象，并且对这个对象的monitor+1；如果不为0，表示这个线程已经被其他线程占有，这个线程等待。当线程释放占有权的时候，monitor-1；
 >
 > 2)        同一线程可以对同一对象进行多次加锁，+1，+1，重入性
 
@@ -290,8 +315,8 @@
 **ReentrantLock (重入锁)**
 
 - 位于java.util.concurrent.locks包
-- 和CountDownLatch. FutureTask. Semaphore一样基于AQS实现
-
+- 和CountDownLatch. FutureTask. 
+- Semaphore一样基于AQS实现
 - 能够实现比synchronized更细粒度的控制,如控制fairness(公平)
 - 调用lock()之后,必须调用unlock()释放锁
 - 性能未必比synchronized高,并且也是可重入的
@@ -310,9 +335,9 @@
 
 **ReentrantLock将锁对象化**
 
-- 判断是否有线程，或者某个特定线程,在排队等待获取锁
+- 判断是否有线程，或者某个特定线程,在排队等待获取锁   
 - 带超时的获取锁的尝试
-- 感知有没有成功获取锁
+- 感知有没有成功获取锁     ReentrantLock.isLocked     ReentrantLock.isHeldByCurrentThread
 
 ### 总结
 
@@ -333,6 +358,10 @@
 ​	Java内存模型(即Java Memory Model ,简称JMM)本身是一种抽象的概念,并不真实存在,它描述的是一组规则或规范,通过这组规范定义了程序中各个变量(包括实例字段,静态字段和构成数组对象的元素)的访问方式(是一组内存模型规范，目的是规范并发程序中共享变量的内存读写，屏蔽硬件和操作系统差异)。
 
 ![](assert\2019-08-28_15-12-50.png)
+
+​    Java内存模型规定了所有的变量都存储在主内存中，每条线程还有自己的工作内存，线程的工作内存中保存了该线程中使用到的变量的主内存副本拷贝，线程对变量的所有操作都必须在工作内存中进行，而不能直接读写主内存。不同的线程之间也无法直接访问对方工作内存中的变量，线程间变量的传递均需要自己的工作内存和主存之间进行数据同步进行。
+
+而JMM就作用于工作内存和主存之间数据同步过程。他规定了如何做数据同步以及什么时候做数据同步。
 
 ### JMM中的主内存
 
@@ -400,7 +429,7 @@
   >
   > ​	1、当写一个volatile变量时, JMM会把该线程对应的工作内存中的全部共享变量值刷新到主内存中
   >
-  > ​	2、当读取一个volatile变量时, JMM会把该线程对应的工作内存置为无效，  JMM会把当前线程用到的全部共享变量（不仅仅被volatile修饰的变量）从主存从新加载 。
+  > ​	2、当读取一个volatile变量时, JMM会把该线程对应的工作内存置为无效，  JMM会把当前线程用到的全部共享变量（不仅仅被volatile修饰的变量）从主存重新加载 。
 
 - 禁止指令重排
 
@@ -426,7 +455,7 @@
 
 1. volatile本质是在告诉JVM当前变量在寄存器(工作内存)中的值是不确定的,需要从主存中读取; synchronized则是锁定当前变量,只有当前线程可以访问该变量,其他线程被阻塞住直到该线程完成变量操作为止
 2. volatile仅能使用在变量级别; synchronized则可以使用在变量、方法和类级别
-3. volatile仅能实现变量的修改可见性,不能保证原子性;而 synchronized则可以保证变量修改的可见性和原子性 
+3. volatile仅能实现变量的修改可见性和有序性,不能保证原子性;而 synchronized则可以保证变量修改的可见性、有序性、原子性 
 4. volatile不会造成线程的阻塞; synchronized可能会造成线程的阻塞 
 5. volatile标记的变量不会被编译器优化; synchronized标记的变量可以被编译器优化
 
@@ -583,6 +612,62 @@ park()/unpark()底层的原理是“**二元信号量**”，你可以把它相�
 
 > Java高并发程序设计113页
 
+### 构造函数
+
+先来看构造函数：
+
+[![复制代码](https://common.cnblogs.com/images/copycode.gif)](javascript:void(0);)
+
+```
+    public ThreadPoolExecutor(int corePoolSize,
+                              int maximumPoolSize,
+                              long keepAliveTime,
+                              TimeUnit unit,
+                              BlockingQueue<Runnable> workQueue,
+                              ThreadFactory threadFactory,
+                              RejectedExecutionHandler handler) {
+        if (corePoolSize < 0 ||
+            maximumPoolSize <= 0 ||
+            maximumPoolSize < corePoolSize ||
+            keepAliveTime < 0)
+            throw new IllegalArgumentException();　　　　　// 注意 workQueue, threadFactory, handler 是不可以为null 的，为空会直接抛出错误
+        if (workQueue == null || threadFactory == null || handler == null)
+            throw new NullPointerException();
+        this.corePoolSize = corePoolSize;
+        this.maximumPoolSize = maximumPoolSize;
+        this.workQueue = workQueue;
+        this.keepAliveTime = unit.toNanos(keepAliveTime);
+        this.threadFactory = threadFactory;
+        this.handler = handler;
+    }
+```
+
+[![复制代码](https://common.cnblogs.com/images/copycode.gif)](javascript:void(0);)
+
+1. **corePoolSize 核心线程数：**表示核心线程池的大小。当提交一个任务时，如果当前核心线程池的线程个数没有达到 corePoolSize，则会创建新的线程来执行所提交的任务，即使当前核心线程池有空闲的线程。如果当前核心线程池的线程个数已经达到了corePoolSize，则不再重新创建线程。如果调用了 `prestartCoreThread() `或者 `prestartAllCoreThreads()`，线程池一个或所有的核心线程都会被创建并且启动，否则仅在执行新任务时启动核心线程。若 corePoolSize == 0，则任务执行完之后，没有任何请求进入时，空闲时间后销毁线程池的线程。若 corePoolSize > 0，即使本地任务执行完毕，核心线程也不会被销毁。corePoolSize 其实可以理解为可保留的空闲线程数。
+2. **maximumPoolSize：** 表示线程池能够容纳同时执行的最大线程数。如果当阻塞队列已满时，并且当前线程池线程个数没有超过 maximumPoolSize 的话，就会创建新的线程来执行任务。注意 maximumPoolSize >= 1 必须大于等于 1。maximumPoolSize == corePoolSize ，即是固定大小线程池。**实际上最大容量是由 CAPACITY 控制**。
+3. **keepAliveTime：** 线程空闲时间。当空闲时间达到 keepAliveTime值时，线程会被销毁，直到只剩下 corePoolSize 个线程为止，避免浪费内存和句柄资源。默认情况，当线程池的线程数 > corePoolSize 时，keepAliveTime 才会起作用。但当 ThreadPoolExecutor 的 allowCoreThreadTimeOut 变量设置为 true 时，核心线程超时后会被回收。
+4. **unit：**时间单位。为 keepAliveTime 指定时间单位。
+5. **workQueue** 缓存队列。当请求的线程数 > corePoolSize 时，线程进入 BlockingQueue 阻塞队列。可以使用 ArrayBlockingQueue, LinkedBlockingQueue, SynchronousQueue, PriorityBlockingQueue。
+6. **threadFactory** 创建线程的工程类。可以通过指定线程工厂为每个创建出来的线程设置更有意义的名字，如果出现并发问题，也方便查找问题原因。  Executors.defaultThreadFactory()
+7. **handler** 执行拒绝策略的对象。当线程池的阻塞队列已满和指定的线程都已经开启，说明当前线程池已经处于饱和状态了，那么就需要采用一种策略来处理这种情况。采用的策略有这几种：
+
+- - AbortPolicy： 直接拒绝所提交的任务，并抛出 **RejectedExecutionException** 异常，默认策略；
+  - CallerRunsPolicy：只用调用者所在的线程来执行任务；
+  - DiscardPolicy：不处理直接丢弃掉任务；
+  - DiscardOldestPolicy：丢弃掉阻塞队列中存放时间最久的任务，执行当前任务
+
+**设：我们有一个coreSize=10，maxSize=20，keepAliveTime=60s，queue=40**
+1、线程池初始化时里面没有任何线程。
+2、当有一个任务提交到线程池就创建第一个线程。
+3、若继续提交任务，当前核心线程池的线程个数没有达到 corePoolSize，则会创建新的线程来执行所提交的任务，即使当前核心线程池有空闲的线程。【**预热阶段**】
+4、若继续提交任务，有空闲线程就调拨空闲线程来处理任务，如果没有空闲线程（10个）则将任务缓存到queue中排队等待。
+5、若继续提交任务，而已有线程不空闲，且queue也满了，则新建线程，并将**最新的**任务优先提交给新线程处理。
+6、若继续提交任务，且所有线程（20个）仍不空闲，queue也是满的，此时就会触发线程池的拒绝策略。
+8、一旦有任何线程空闲下来就会从queue中消费任务，直到queue中任务被消费完。
+9、当总忙碌线程个数不超过coreSize时，闲暇线程休息keepAliveTime过后会被销毁。
+10、而池中一直保留coreSize个线程存活。 
+
 ![](assert\2019-08-28_16-57-35.png)
 
 #### 线程池的状态
@@ -605,16 +690,6 @@ park()/unpark()底层的原理是“**二元信号量**”，你可以把它相�
 
 - TERMINATED : terminated()方法执行完后进入该状态
 
-   **设：我们有一个coreSize=10，maxSize=20，keepAliveTime=60s，queue=40**
-  1、池初始化时里面没有任何线程。
-  2、当有一个任务提交到池就创建第一个线程。
-  3、若继续提交任务，有空闲线程就调拨空闲线程来处理任务？若没有线程空闲则再新建一个线程来处理，如此直到coreSize。【**预热阶段**】
-  4、若继续提交任务，有空闲线程就调拨空闲线程来处理任务，如果没有空闲线程（10个）则将任务缓存到queue中排队等待。
-  5、若继续提交任务，而已有线程不空闲，且queue也满了，则新建线程，并将**最新的**任务优先提交给新线程处理。
-  6、若继续提交任务，且所有线程（20个）仍不空闲，queue也是满的，此时就会触发池的拒绝机制。
-  8、一旦有任何线程空闲下来就会从queue中消费任务，直到queue中任务被消费完。
-  9、当总忙碌线程个数不超过coreSize时，闲暇线程休息keepAliveTime过后会被销毁。
-  10、而池中一直保留coreSize个线程存活。 
 
 ![](assert\2019-08-28_17-02-20.png)
 
