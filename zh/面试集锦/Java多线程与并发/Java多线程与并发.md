@@ -447,6 +447,8 @@ child thread: holdLock: true`
 
 - volatile 不保证原子性
 
+### 单例模式的双重检测与禁止指令重排实现
+
 ![](assert\2019-08-28_16-05-23.png)
 
 ![](assert\2019-08-28_16-06-10.png)

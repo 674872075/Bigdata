@@ -396,14 +396,14 @@ BeanFactory是spring简单工厂模式的接口类，spring IOC特性核心类�
 
 > FactoryBean仍然是一个bean，但不同于普通bean，它的实现类(加 前缀 &)最终也需要注册到BeanFactory中。它也是一种简单工厂模式的接口类，但是生产的是单一类型的对象，与BeanFactory生产多种类型对象不同。
 >
-> FactoryBean是一个接口，实现了这个接口的类，在注册到spring BeanFactory后，并不像其它类注册后暴露的是自己，它暴露的是FactoryBean
+> FactoryBean是一个接口，实现了这个接口的类，在注册到spring BeanFactory后，并不像其它类注册后暴露的是自己，它暴露的是FactoryBean的真实对象
 
 #### ApplicationContext的功能（继承多个接口）
 
 > BeanFactory：能够管理、装配Bean
 >ResourcePatternResolver：能够加载资源文件
 >MessageSource：能够实现国际化等功能
->ApplicationEventPublisher：能够注册监听器，实现监听机制
+>ApplicationEventPublisher：能够发布事件，将事件广播给监听器，实现监听机制
 
 ![](assert\2019-08-29_20-46-59.png)
 
@@ -442,6 +442,10 @@ BeanFactory是spring简单工厂模式的接口类，spring IOC特性核心类�
   >若配置了destry-method属性，则会调用其配置的销毁方法
   >
   >@PreDestroy ->DisposableBean( destroy() ) ->destry-method
+
+##### Spring生命周期地图
+
+![SpringBean生命周期--创建过程和销毁过程](assert\2023-01-06_15-07-10.png)
 
 ### 你了解Spring AOP么
 
@@ -515,6 +519,107 @@ BeanFactory是spring简单工厂模式的接口类，spring IOC特性核心类�
 >真实实现类的逻辑包含在了getBean方法里
 >getBean方法返回的实际上是Proxy的实例
 >Proxy实例是Spring 采用JDK Proxy或CGLIB动态生成的
+
+### Spring IOC三级缓存解决循环依赖
+
+```java
+/** DefaultSingletonBeanRegistry **/
+    
+/** Cache of singleton objects: bean name to bean instance. 一级缓存*/
+private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>(256);
+
+/** Cache of early singleton objects: bean name to bean instance. 二级缓存*/
+private final Map<String, Object> earlySingletonObjects = new ConcurrentHashMap<>(16);
+
+/** Cache of singleton factories: bean name to ObjectFactory. 三级缓存*/
+private final Map<String, ObjectFactory<?>> singletonFactories = new HashMap<>(16);
+
+
+@Override
+	@Nullable
+	public Object getSingleton(String beanName) {
+		return getSingleton(beanName, true);
+	}
+
+	/**
+	 * Return the (raw) singleton object registered under the given name.
+	 * <p>Checks already instantiated singletons and also allows for an early
+	 * reference to a currently created singleton (resolving a circular reference).
+	 * @param beanName the name of the bean to look for
+	 * @param allowEarlyReference whether early references should be created or not
+	 * @return the registered singleton object, or {@code null} if none found
+	 */
+	@Nullable
+	protected Object getSingleton(String beanName, boolean allowEarlyReference) {
+		// Quick check for existing instance without full singleton lock
+		Object singletonObject = this.singletonObjects.get(beanName);
+		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
+			singletonObject = this.earlySingletonObjects.get(beanName);
+			if (singletonObject == null && allowEarlyReference) {
+				synchronized (this.singletonObjects) {
+					// Consistent creation of early reference within full singleton lock
+					singletonObject = this.singletonObjects.get(beanName);
+					if (singletonObject == null) {
+						singletonObject = this.earlySingletonObjects.get(beanName);
+						if (singletonObject == null) {
+							ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
+							if (singletonFactory != null) {
+								singletonObject = singletonFactory.getObject();
+								this.earlySingletonObjects.put(beanName, singletonObject);
+								this.singletonFactories.remove(beanName);
+							}
+						}
+					}
+				}
+			}
+		}
+		return singletonObject;
+	}
+```
+
+spring中使用了3个map来作为三级缓存，每一级对应一个map
+
+| 第几级缓存 | 对应的map                                        | 说明                                                         |
+| ---------- | ------------------------------------------------ | ------------------------------------------------------------ |
+| 第1级      | Map singletonObjects                             | 用来存放已经完全创建好的单例bean  beanName->bean实例         |
+| 第2级      | Map earlySingletonObjects                        | 用来存放早期的bean  beanName->bean实例                       |
+| 第3级      | Map<String, ObjectFactory<?>> singletonFactories | 用来存放单例bean的ObjectFactory  beanName->ObjectFactory实例 |
+
+这3个map的源码位于`org.springframework.beans.factory.support.DefaultSingletonBeanRegistry`类中。
+
+#### 三级缓存是什么?
+
+​	Spring IOC解决循环依赖需要使用到三级缓存，一级缓存(singletonObjects)存储的是成品对象、二级缓存(earlySingletonObjects)存储的是半成品对象(未完全填充属性值、未完成Spring Bean的初始化操作)、三级缓存(singletonFactories)存储的是代理对象，分阶段存储对象内容，用于解决循环依赖问题
+
+##### 为什么不使用一级缓存?
+
+​	如果只使用一级缓存，则流程无法拆分，代码复杂度会增加，同时半成品对象可能有空指针异常，如果将成品对象与半成品对象分开，则处理起来更加简单、美观、易扩展
+
+##### 为什么不使用二级缓存?
+
+​	Spring的两大特性不仅包括IOC还包括AOP,即基于字节码增强后的方法，三级缓存最主要解决的循环依赖就是对AOP的处理，如果把AOP代理对象的创建提前，则使用二级缓存也可以解决。但是，这就违背了Spring创建对象的原则-------Spring首先将所有的普通Bean对象初始化完成，再处理代理对象的初始化。所以为了设计上的合理性和可扩展性，创建了三级缓存，用于存储不同时期的对象
+
+
+
+#### 附加资料
+
+[循环依赖不用三级缓存可以么?](http://www.itsoku.com/course/5/138)
+
+1、循环依赖如果是构造器的方式，bean无法创建成功，这个前提是bean都是单例的，bean如果是多例的，大家自己可以分析分析。
+
+2、spring是通过singletonsCurrentlyInCreation这个列表来发现循环依赖的，这个列表会记录创建中的bean，当发现bean在这个列表中存在了，说明有循环依赖，并且这个循环依赖是无法继续走下去的，如果继续走下去，会进入死循环，此时spring会抛出异常让系统终止。
+
+3、当某个bean进入到2级缓存的时候，说明这个bean的早期对象被其他bean注入了，也就是说，这个bean还是半成品，还未完全创建好的时候，已经被别人拿去使用了，所以必须要有3级缓存，2级缓存中存放的是早期的被别人使用的对象，如果没有2级缓存，是无法判断这个对象在创建的过程中，是否被别人拿去使用了。
+
+3级缓存是为了解决一个非常重要的问题：早期被别人拿去使用的bean和最终成型的bean是否是一个bean，如果不是同一个，则会产生异常，所以以后面试的时候被问到为什么需要用到3级缓存的时候，你只需要这么回答就可以了：三级缓存是为了判断循环依赖的时候，早期暴露出去已经被别人使用的bean和最终的bean是否是同一个bean，如果不是同一个则弹出异常，如果早期的对象没有被其他bean使用，而后期被修改了，不会产生异常，如果没有三级缓存，是无法判断是否有循环依赖，且早期的bean被循环依赖中的bean使用了。。
+
+spring容器默认是不允许早期暴露给别人的bean和最终的bean不一致的，但是这个配置可以修改，而修改之后存在很大的分享，所以不要去改，通过下面这个变量控制
+
+```java
+org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#allowRawInjectionDespiteWrappingprivate boolean allowRawInjectionDespiteWrapping = false;
+```
+
+
 
 ### Dubbo知识总结
 
