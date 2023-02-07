@@ -42,6 +42,34 @@
 
 ![](assert\2019-08-26_10-08-43.png)
 
+touch
+
+mkdir
+
+cp（复制）
+
+mv(移动、 重命名)
+
+rm
+
+ps -ef | grep java   、ps -aux | grep java
+
+grep、fgrep、zgrep
+
+tail
+
+head
+
+df -h
+
+free -m
+
+top、top -Hp pid
+
+scp
+
+ssh
+
 # 跳槽细节
 
 ![](assert\2019-08-26_10-10-53.png)
